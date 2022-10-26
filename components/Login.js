@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Checkbox } from "react-native-paper";
+import { useForm } from "react-hook-form";
 
 const { width, height } = Dimensions.get("window");
 import {
@@ -25,12 +26,20 @@ import { Feather } from "@expo/vector-icons";
 import showFirebaseErrorToast from "./controllers/showFirebaseErrorToast";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ActivityIndicator } from "react-native";
 
 const Login = ({ navigation, route }) => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
   const [checked, setChecked] = useState(false);
 
   const [userMail, setUserMail] = useState("");
   const [password, setPassword] = useState("");
+  const [loader, setLoader] = useState(false);
   const [loginBtnDisableStatus, setLoginBtnDisableStatus] = useState(true);
   const [showPassword, setShowPassword] = useState({
     hidePassword: true,
@@ -58,10 +67,11 @@ const Login = ({ navigation, route }) => {
 
   const loginUser = () => {
     const auth = getAuth();
-
+    setLoader(true);
     signInWithEmailAndPassword(auth, userMail, password)
       .then(async (userCredential) => {
         // Signed in
+        setLoader(false);
         const user = userCredential.user;
         if (checked) {
           try {
@@ -75,6 +85,7 @@ const Login = ({ navigation, route }) => {
         }
       })
       .catch((error) => {
+        setLoader(false);
         console.log(error.code);
         let message = showFirebaseErrorToast(error.code);
         console.log(message);
@@ -228,7 +239,9 @@ const Login = ({ navigation, route }) => {
             }
           }}
         >
-          <Text style={{ color: "white" }}>Log in</Text>
+          <Text style={{ color: "white" }}>
+            {!loader ? "Log in" : <ActivityIndicator color="#ffffff" />}
+          </Text>
         </TouchableOpacity>
         <View
           style={{

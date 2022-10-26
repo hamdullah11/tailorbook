@@ -39,6 +39,7 @@ import UploadClientClothImg from "./components/addClient/UploadClientClothImg";
 import SelectPatternImage from "./components/addClient/SelectPatternImage";
 import Gallery from "./components/mainScreenComponents/Gallery";
 import GallerySubTypesSlider from "./components/mainScreenComponents/gallerySubTypes/GallerySubTypesSlider";
+import { getAuth } from "firebase/auth";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -46,13 +47,26 @@ const AuthStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
+        name="Home"
+        component={SelectLanguage}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="Login"
         component={Login}
         options={{
           headerShown: false,
         }}
       />
-      <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen
+        name="Register"
+        component={Register}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="ForgotPassword"
         component={ForgotPassword}
@@ -92,8 +106,6 @@ const NormalStack = () => {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="Home" component={SelectLanguage} />
-
       <>
         <Stack.Screen
           name="MainScreen"
@@ -129,16 +141,16 @@ const NormalStack = () => {
 const RootNavigation = () => {
   console.log(loginToken);
 
-  return (
-    <NavigationContainer>
-      {state.userLogin == false ? <AuthStack /> : <NormalStack />}
-    </NavigationContainer>
-  );
+  return <NormalStack />;
 };
 const App = () => {
+  let auth = getAuth();
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      {auth.currentUser ? <NormalStack /> : <AuthStack />}
+
+      {/* <Stack.Navigator>
         <Stack.Screen
           name="SelectLanguage"
           component={SelectLanguage}
@@ -548,7 +560,7 @@ const App = () => {
           name="GallerySubTypesSlider"
           component={GallerySubTypesSlider}
         ></Stack.Screen>
-      </Stack.Navigator>
+      </Stack.Navigator> */}
     </NavigationContainer>
   );
 };

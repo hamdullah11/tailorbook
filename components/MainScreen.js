@@ -15,6 +15,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import OrderDetails from "../components/orders/OrderDetails";
+import { CustomDrawer } from "../navigations/CustomDrawer";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -22,6 +23,7 @@ const Drawer = createDrawerNavigator();
 const MainScreen = () => {
   return (
     <Drawer.Navigator
+      drawerContent={(props) => <CustomDrawer {...props} />}
       screenOptions={{
         headerRight: ({ tintColor, focused }) => (
           <View
