@@ -24,8 +24,8 @@ const renderItem = (img) => {
   );
 };
 const GallerySubTypesSlider = ({ route }) => {
-  // console.log("slider", route.params);
-  let { Images } = route.params;
+  let Images = route.params.Images;
+
   const [image, setImage] = useState(Images[0]);
   const [currentPosition, setCurrentPosition] = useState(0);
 
@@ -44,7 +44,7 @@ const GallerySubTypesSlider = ({ route }) => {
       <View style={styles.container}>
         <Image
           source={{
-            uri: image,
+            uri: image.link,
           }}
           style={{
             width: width,
@@ -55,23 +55,6 @@ const GallerySubTypesSlider = ({ route }) => {
           }}
         />
       </View>
-
-      {/* <FlatList
-        data={Images}
-        horizontal
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      /> */}
-      {/* <SliderBox
-        resizeMode={"cover"}
-        images={Images}
-        ImageComponentStyle={{
-          borderRadius: 15,
-          width: "97%",
-
-          //   marginTop: 100,
-        }}
-      /> */}
     </ScrollView>
   );
 };

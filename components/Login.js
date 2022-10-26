@@ -77,7 +77,6 @@ const Login = ({ navigation, route }) => {
           try {
             const jsonValue = JSON.stringify(user);
             await AsyncStorage.setItem("loginUser", jsonValue);
-            navigation.navigate("MainScreen");
           } catch (e) {
             // saving error
             console.log(e);
@@ -87,15 +86,15 @@ const Login = ({ navigation, route }) => {
       .catch((error) => {
         setLoader(false);
         console.log(error.code);
-        let message = showFirebaseErrorToast(error.code);
-        console.log(message);
-        ToastAndroid.showWithGravityAndOffset(
-          message,
-          ToastAndroid.LONG,
-          ToastAndroid.CENTER,
-          25,
-          50
-        );
+        showFirebaseErrorToast(error.code);
+
+        // ToastAndroid.showWithGravityAndOffset(
+        //   message,
+        //   ToastAndroid.LONG,
+        //   ToastAndroid.CENTER,
+        //   25,
+        //   50
+        // );
       });
   };
 

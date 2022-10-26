@@ -10,7 +10,7 @@ import {
   ToastAndroid,
 } from "react-native";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext } from "react";
 // import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -39,7 +39,7 @@ import UploadClientClothImg from "./components/addClient/UploadClientClothImg";
 import SelectPatternImage from "./components/addClient/SelectPatternImage";
 import Gallery from "./components/mainScreenComponents/Gallery";
 import GallerySubTypesSlider from "./components/mainScreenComponents/gallerySubTypes/GallerySubTypesSlider";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -117,14 +117,22 @@ const NormalStack = () => {
         <Stack.Screen name="AddNewClient" component={AddNewClient} />
 
         <Stack.Screen
-          options={{
+          options={({ route }) => ({
+            headerTitle: route.params.name,
             headerShown: true,
-            headerTitle: "Kurta",
+
             headerTitleAlign: "center",
-          }}
+          })}
           name="GallerySubTypes"
           component={GallerySubTypes}
         />
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+          name="GallerySubTypesSlider"
+          component={GallerySubTypesSlider}
+        ></Stack.Screen>
         <Stack.Screen
           options={{
             headerShown: true,
@@ -133,6 +141,83 @@ const NormalStack = () => {
           }}
           name="AddNewClientDetails"
           component={AddNewClientDetails}
+        ></Stack.Screen>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTitle: "",
+            headerTitleAlign: "center",
+            headerTintColor: "white",
+            headerStyle: {
+              backgroundColor: "black",
+            },
+            headerRight: () => {
+              return (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="reload"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialIcons
+                      name="flip"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <Text
+                      style={{ color: "white", marginHorizontal: width * 0.03 }}
+                    >
+                      Save
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            },
+          }}
+          name="UploadDressItem"
+          component={UploadDressItem}
         ></Stack.Screen>
       </>
     </Stack.Navigator>
@@ -145,10 +230,19 @@ const RootNavigation = () => {
 };
 const App = () => {
   let auth = getAuth();
+  const [isUserLogin, setIsUserLogin] = useState(false);
+
+  onAuthStateChanged(auth, () => {
+    if (auth.currentUser) {
+      setIsUserLogin(true);
+    } else {
+      setIsUserLogin(false);
+    }
+  });
 
   return (
     <NavigationContainer>
-      {auth.currentUser ? <NormalStack /> : <AuthStack />}
+      {isUserLogin ? <NormalStack /> : <AuthStack />}
 
       {/* <Stack.Navigator>
         <Stack.Screen

@@ -14,13 +14,14 @@ import getGallerySubImages from "../../../controllers/firebase/getGallerySubImag
 import { Modal, NativeBaseProvider, Center } from "native-base";
 const { width, height } = Dimensions.get("window");
 const GallerySubTypes = ({ route, navigation }) => {
-  const { itemId, otherParam, Type } = route.params;
+  const { Type, id } = route.params.item;
   const [Images, setImages] = useState();
   const [loader, setLoader] = useState(true);
 
   useEffect(() => {
     const getImages = async () => {
-      let gallerySubImages = await getGallerySubImages(Type);
+      setLoader(true);
+      let gallerySubImages = await getGallerySubImages(Type, id);
 
       setImages(gallerySubImages);
       setLoader(false);
@@ -54,7 +55,7 @@ const GallerySubTypes = ({ route, navigation }) => {
           </NativeBaseProvider>
         ) : (
           <>
-            {Images.map((item, i) => (
+            {Images?.map((item, i) => (
               <TouchableOpacity
                 onPress={() => {
                   navigation.navigate("GallerySubTypesSlider", {
@@ -71,7 +72,7 @@ const GallerySubTypes = ({ route, navigation }) => {
                 }}
               >
                 <Card>
-                  <Card.Cover source={{ uri: item }} />
+                  <Card.Cover source={{ uri: item.link }} />
                 </Card>
               </TouchableOpacity>
             ))}

@@ -23,30 +23,19 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  updateProfile,
 } from "firebase/auth";
 
 import * as Google from "expo-auth-session/providers/google";
 import * as yup from "yup";
-import { useForm } from "react-hook-form";
-
-const schema = yup
-  .object({
-    fullName: yup.string().required(),
-    email: yup.string().email().required(),
-    phone: yup
-      .string()
-      .matches(/(\+91\ )[6-9]{1}[0-9 ]{4}[0-9 ]{4}[0-9]{3}/, {
-        message: "Invalid Indian number",
-        excludeEmptyString: false,
-      })
-      .required(),
-    password: yup.string().min(6),
-  })
-  .required();
+import { Controller, useForm } from "react-hook-form";
+import showFirebaseErrorToast from "./controllers/showFirebaseErrorToast";
+import storeUserData from "./controllers/storeUserData";
 
 const Register = ({ navigation }) => {
   const [checked, setChecked] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("310 1122123");
+  const [phoneErrorMessage, setPhoneErrorMessage] = useState();
   const [request, response, promptAsync] = Google.useAuthRequest({
     behavior: "web",
     expoClientId:
@@ -75,10 +64,12 @@ const Register = ({ navigation }) => {
     });
   };
 
-  const handelSignUp = () => {
-    setLoader(true);
-    const checkValid = phoneRef.current?.isValidNumber(phoneNumber);
-    console.log(checkValid);
+  const handelSignUp = (data) => {
+    const { email, fullName, password } = data;
+    // setLoader(true);
+
+    const contactNo =
+      phoneRef.current.state.code + phoneRef.current.state.number;
 
     if (!checked) {
       ToastAndroid.showWithGravity(
@@ -89,37 +80,25 @@ const Register = ({ navigation }) => {
       setLoader(false);
       return;
     }
-    if (!checkValid) {
-      ToastAndroid.showWithGravity(
-        "Phone number is not valid",
-        ToastAndroid.SHORT,
-        ToastAndroid.CENTER
-      );
-      setLoader(false);
-      return;
-    }
 
-    createUserWithEmailAndPassword(
-      auth,
-      userDetail.userEmail,
-      userDetail.userPassword
-    )
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
-        const user = userCredentials.user;
-        user.displayName = userDetail.userName;
-        user.phoneNumber = userDetail.userContactNo;
-
-        ToastAndroid.showWithGravity(
-          "Successfully Registered",
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER
-        );
-
-        // console.log("hamd", user);
-
-        // navigation.navigate("Login");
+        storeUserData(userCredentials.user.uid, fullName, email, contactNo);
+        updateProfile(userCredentials.user, {
+          displayName: fullName,
+          phoneNumber: contactNo,
+        }).then(() => {
+          ToastAndroid.showWithGravity(
+            "Successfully Registered",
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER
+          );
+          navigation.navigate("Login");
+        });
       })
-      .catch((error) => alert(error));
+      .catch((error) => {
+        showFirebaseErrorToast(error.code);
+      });
     setLoader(false);
   };
 
@@ -127,14 +106,28 @@ const Register = ({ navigation }) => {
     await promptAsync();
     console.log(response);
   };
-
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+    },
   });
+
+  const changePhoneNumber = (val) => {
+    console.log(val);
+    setPhoneNumber(val);
+    const checkValid = phoneRef.current?.isValidNumber(phoneNumber);
+    if (!checkValid) {
+      setPhoneErrorMessage("Invalid phone number");
+    } else {
+      setPhoneErrorMessage();
+    }
+  };
 
   return (
     <ScrollView showsHorizontalScrollIndicator={false}>
@@ -167,7 +160,12 @@ const Register = ({ navigation }) => {
               *
             </Text>
           </Text>
-          <View
+
+          <Controller
+            control={control}
+            rules={{
+              required: "Name is required",
+            }}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -178,18 +176,21 @@ const Register = ({ navigation }) => {
               borderRadius: width * 0.01,
               justifyContent: "space-between",
             }}
-          >
-            <TextInput
-              placeholder="Enter your Name"
-              // onChangeText={(uName) => {
-              //   setUserDetail({
-              //     ...userDetail,
-              //     userName: uName,
-              //   });
-              // }}
-              {...register("fullName")}
-            />
-          </View>
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="John Doe"
+              />
+            )}
+            name="fullName"
+          />
+          {errors.fullName && (
+            <Text style={styles.errorMessage}>{errors.fullName.message}</Text>
+          )}
+
           <Text
             style={{
               marginLeft: 12,
@@ -206,7 +207,17 @@ const Register = ({ navigation }) => {
               *
             </Text>
           </Text>
-          <View
+
+          <Controller
+            control={control}
+            rules={{
+              required: "email is required",
+              pattern: {
+                value:
+                  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                message: "Please enter a valid email",
+              },
+            }}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -217,18 +228,21 @@ const Register = ({ navigation }) => {
               borderRadius: width * 0.01,
               justifyContent: "space-between",
             }}
-          >
-            <TextInput
-              placeholder="Enter your Email"
-              keyboardType="email-address"
-              onChangeText={(email) => {
-                setUserDetail({
-                  ...userDetail,
-                  userEmail: email,
-                });
-              }}
-            />
-          </View>
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="John@gmail.com"
+                keyboardType="email-address"
+              />
+            )}
+            name="email"
+          />
+          {errors.email && (
+            <Text style={styles.errorMessage}>{errors.email.message}</Text>
+          )}
           <Text
             style={{
               marginLeft: 12,
@@ -262,7 +276,7 @@ const Register = ({ navigation }) => {
               layout="second"
               onChangeText={(text) => {
                 // console.log(phoneRef.current?.getCountryCode());
-                setPhoneNumber(text);
+                changePhoneNumber(text);
               }}
               containerStyle={{
                 backgroundColor: "#FBFBFB",
@@ -276,17 +290,16 @@ const Register = ({ navigation }) => {
               }}
             />
           </View>
-          {/* <TextInput
-              placeholder="Enter your Phone Number"
-              keyboardType="number-pad"
-              onChangeText={(contactNo) => {
-                setUserDetail({
-                  ...userDetail,
-                  userContactNo: contactNo,
-                });
-              }}
-            /> */}
-          {/* </View> */}
+          <Text
+            style={{
+              marginHorizontal: 13,
+              color: "red",
+              fontSize: 10,
+            }}
+          >
+            {phoneErrorMessage && phoneErrorMessage}
+          </Text>
+
           <Text
             style={{
               marginLeft: 12,
@@ -304,36 +317,60 @@ const Register = ({ navigation }) => {
               *
             </Text>
           </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginHorizontal: width * 0.03,
-              borderWidth: 1,
-              borderColor: "rgba(28,90,55,0.16)",
-              padding: width * 0.04,
-              borderRadius: width * 0.01,
-              justifyContent: "space-between",
+
+          <Controller
+            control={control}
+            rules={{
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password should be greater then six character",
+              },
             }}
-          >
-            <TextInput
-              placeholder="Enter your password"
-              onChangeText={(password) => {
-                setUserDetail({
-                  ...userDetail,
-                  userPassword: password,
-                });
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: width * 0.03,
+                  borderWidth: 1,
+                  borderColor: "rgba(28,90,55,0.16)",
+                  padding: width * 0.04,
+                  borderRadius: width * 0.01,
+                  justifyContent: "space-between",
+                  backgroundColor: "white",
+                }}
+              >
+                <TextInput
+                  placeholder="Enter your password"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry={showPassword.hidePassword}
+                />
+                <TouchableOpacity onPress={changePasswordStatus}>
+                  <Feather
+                    name={showPassword.iconType}
+                    size={24}
+                    color="rgba(28,46,69,0.60)"
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+            name="password"
+          />
+          {errors.password && (
+            <Text
+              style={{
+                marginHorizontal: 13,
+
+                color: "red",
+                fontSize: 10,
               }}
-              secureTextEntry={showPassword.hidePassword}
-            />
-            <TouchableOpacity onPress={changePasswordStatus}>
-              <Feather
-                name={showPassword.iconType}
-                size={24}
-                color="rgba(28,46,69,0.60)"
-              />
-            </TouchableOpacity>
-          </View>
+            >
+              {errors.password.message}
+            </Text>
+          )}
         </View>
 
         <View
@@ -364,7 +401,11 @@ const Register = ({ navigation }) => {
           <View></View>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handelSignUp}>
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={handleSubmit(handelSignUp)}
+          disabled={phoneErrorMessage}
+        >
           <Text style={{ color: "white" }}>
             {loader ? <ActivityIndicator color="#ffffff" /> : "Get Started"}
           </Text>
@@ -471,5 +512,11 @@ const styles = StyleSheet.create({
     padding: height * 0.021,
     marginHorizontal: width * 0.03,
     marginTop: height * 0.001,
+  },
+  errorMessage: {
+    marginHorizontal: 13,
+    marginTop: -10,
+    color: "red",
+    fontSize: 10,
   },
 });

@@ -4,17 +4,20 @@ import React from "react";
 const showFirebaseErrorToast = (errorCode) => {
   switch (errorCode) {
     case "auth/invalid-email":
-      return "Invalid Email address";
+      alert("Invalid Email address");
       break;
     case "auth/wrong-password":
-      return "Incorrect Password";
+      alert("Incorrect Password");
       break;
     case "auth/user-not-found":
-      return "Email Not Found";
+      alert("User not found");
+      break;
+    case "auth/email-already-in-use":
+      alert("email-already-in-use");
       break;
 
     default:
-      return "Login Error";
+      alert("Login Error");
       break;
   }
 };

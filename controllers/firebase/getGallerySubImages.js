@@ -1,22 +1,21 @@
 import { StyleSheet, Text, View } from "react-native";
 import { getStorage, ref, getDownloadURL, listAll } from "firebase/storage";
 import React from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
-const getGallerySubImages = async () => {
-  const storage = getStorage();
-  const reference = ref(storage, "/Gallery/GallarySubItems/KurtaImages");
+const getGallerySubImages = async (Type, id) => {
+  const reference = collection(db, "globalImageGallery", id, "subImages");
   let allImages = [];
-  let allImageRef = await listAll(reference);
-  if (allImageRef.items.length) {
-    for (let i = 0; i < allImageRef.items.length; i++) {
-      let url = await getDownloadURL(allImageRef.items[i]);
-
-      allImages.push(url);
-      if (i == allImageRef.items.length - 1) {
-        return allImages;
-      }
-    }
-  }
+  return getDocs(reference).then((docs) => {
+    docs?.forEach((doc) => {
+      allImages.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+    return allImages;
+  });
 };
 
 export default getGallerySubImages;

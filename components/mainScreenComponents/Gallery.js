@@ -16,124 +16,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import getGalleryImages from "../../controllers/firebase/getImagesOfGallery";
 import addNewGalleryFolder from "../controllers/addNewGalleryFolder";
 import { HeaderTitle } from "react-navigation-stack";
+import { ToastAndroid } from "react-native";
 const { width, height } = Dimensions.get("window");
-const kurtaSubImages = [
-  {
-    id: 1,
-    image: require("../../assets/kurtaImages/kurta1.png"),
-  },
-  {
-    id: 2,
-    image: require("../../assets/kurtaImages/kurta2.png"),
-  },
-  {
-    id: 3,
-    image: require("../../assets/kurtaImages/kurta3.png"),
-  },
-  {
-    id: 4,
-    image: require("../../assets/kurtaImages/kurta4.png"),
-  },
-  {
-    id: 5,
-    image: require("../../assets/kurtaImages/kurta5.png"),
-  },
-  {
-    id: 6,
-    image: require("../../assets/kurtaImages/kurta6.png"),
-  },
-  {
-    id: 7,
-    image: require("../../assets/kurtaImages/kurta7.png"),
-  },
-];
-const GallaryItems = [
-  {
-    id: 1,
-    image: require("../../assets/Kurta.png"),
-    name: "Kurta",
-  },
-  {
-    id: 2,
-    image: require("../../assets/Salwar.png"),
-    name: "Salwar",
-  },
-  {
-    id: 3,
-    image: require("../../assets/Blouse.png"),
-    name: "Blouse",
-  },
-  {
-    id: 4,
-    image: require("../../assets/Burka.png"),
-    name: "Burka",
-  },
-  {
-    id: 5,
-    image: require("../../assets/Saree.png"),
-    name: "Saree",
-  },
-  {
-    id: 6,
-    image: require("../../assets/UnderSkirt.png"),
-    name: "Under Skirt",
-  },
-  {
-    id: 7,
-    image: require("../../assets/NightGown.png"),
-    name: "Night Gown",
-  },
-  {
-    id: 8,
-    image: require("../../assets/frock.png"),
-    name: "Frock",
-  },
-  {
-    id: 9,
-    image: require("../../assets/Churidar.png"),
-    name: "Churidar",
-  },
-  {
-    id: 10,
-    image: require("../../assets/Shorts.png"),
-    name: "Shorts",
-  },
-  {
-    id: 11,
-    image: require("../../assets/Jeans.png"),
-    name: "Jeans",
-  },
-  {
-    id: 12,
-    image: require("../../assets/shirt.png"),
-    name: "Shirt",
-  },
-  {
-    id: 13,
-    image: require("../../assets/pant.png"),
-    name: "Pants",
-  },
-  {
-    id: 14,
-    image: require("../../assets/coat.png"),
-    name: "Coat",
-  },
-  {
-    id: 15,
-    image: require("../../assets/Pajama.png"),
-    name: "Pajama",
-  },
-  {
-    id: 16,
-    image: require("../../assets/ShalwarKameez.png"),
-    name: "Shalwar Kameez",
-  },
-  // {
-  //   id: 17,
-  //   image: require("../../assets"),
-  //   name: "Add New Folder",
-  // },
-];
 
 const GallaryItemsList = (navigation, item) => {
   return (
@@ -214,6 +98,14 @@ const Gallery = ({ navigation }) => {
                           setGalleryImages
                         );
                         setShowModal(false);
+                      } else {
+                        ToastAndroid.showWithGravityAndOffset(
+                          "Folder name Cannot be empty",
+                          ToastAndroid.LONG,
+                          ToastAndroid.BOTTOM,
+                          25,
+                          50
+                        );
                       }
                     }}
                   >
@@ -265,9 +157,7 @@ const Gallery = ({ navigation }) => {
                     <TouchableOpacity
                       onPress={() =>
                         navigation.navigate("GallerySubTypes", {
-                          itemId: 86,
-                          otherParam: kurtaSubImages,
-                          Type: item.name,
+                          item,
                           name: item.name,
                         })
                       }
