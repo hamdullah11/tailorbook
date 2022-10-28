@@ -10,6 +10,8 @@ const selectContactFromPhone = async () => {
       fields: [Contacts.Fields.PhoneNumbers],
     });
     return data;
+  } else {
+    return false;
   }
 };
 

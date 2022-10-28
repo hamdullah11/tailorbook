@@ -18,39 +18,28 @@ import addNewGalleryFolder from "../controllers/addNewGalleryFolder";
 import { HeaderTitle } from "react-navigation-stack";
 import { ToastAndroid } from "react-native";
 const { width, height } = Dimensions.get("window");
+import {
+  Modal as NativeBaseModal,
+  NativeBaseProvider,
+  Center,
+} from "native-base";
+import { ActivityIndicator } from "react-native";
 
-const GallaryItemsList = (navigation, item) => {
-  return (
-    <View
-      style={{
-        flex: 1,
-        // alignItems: "center",
-        width: 180,
-        height: 180,
-        marginHorizontal: width * 0.03,
-      }}
-    >
-      <Card>
-        {/* <Image source={item.image} />
-         */}
-        <Card.Cover source={item.image} />
-        <Text style={{ textAlign: "center" }}>{item.name}</Text>
-      </Card>
-    </View>
-  );
-};
 const Gallery = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [folderName, setFolderName] = useState("");
+  const [loader, setLoader] = useState(true);
+  const [refResh, setRefResh] = useState(false);
   const [galleryImages, setGalleryImages] = useState();
   useEffect(() => {
     const getImagesOfGallery = async () => {
+      setLoader(true);
       let images = await getGalleryImages();
-
+      setLoader(false);
       setGalleryImages(images);
     };
     getImagesOfGallery();
-  }, []);
+  }, [refResh]);
 
   return (
     <ScrollView>
@@ -90,14 +79,18 @@ const Gallery = ({ navigation }) => {
                 >
                   <TouchableOpacity
                     style={[styles.button]}
-                    onPress={() => {
+                    onPress={async () => {
                       if (folderName.length) {
-                        addNewGalleryFolder(
+                        let resp = await addNewGalleryFolder(
                           folderName,
                           galleryImages,
                           setGalleryImages
                         );
+                        console.log(resp);
                         setShowModal(false);
+                        if (resp) {
+                          setRefResh(!refResh);
+                        }
                       } else {
                         ToastAndroid.showWithGravityAndOffset(
                           "Folder name Cannot be empty",
@@ -117,109 +110,127 @@ const Gallery = ({ navigation }) => {
           </View>
         </Modal>
       )}
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-
-          marginVertical: height * 0.01,
-          marginHorizontal: width * 0.03,
-        }}
-      >
-        {galleryImages &&
-          galleryImages.map((item) => {
-            return (
-              <View
-                key={item.id}
-                style={{
-                  width: width * 0.45,
-                  height: width * 0.48,
-                  backgroundColor: "white",
-                  marginVertical: width * 0.02,
-                  paddingVertical: height * 0.01,
-                }}
-              >
-                <Card style={{ alignItems: "center" }}>
-                  <Card.Content
-                    style={{
-                      width: width * 0.39,
-                      height: width * 0.41,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: "rgba(195, 197, 214, 0.3)",
-                      // margin: 4,
-                      elevation: 0,
-                      borderWidth: 0,
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate("GallerySubTypes", {
-                          item,
-                          name: item.name,
-                        })
-                      }
-                    >
-                      {item.Imgurl ? (
-                        <Image
-                          source={{
-                            uri: item.Imgurl,
-                          }}
-                          style={{
-                            resizeMode: "contain",
-                            width: width * 0.37,
-                            height: width * 0.37,
-                          }}
-                        />
-                      ) : (
-                        <Image
-                          source={require("../../assets/noSubitem.png")}
-                          style={{
-                            resizeMode: "contain",
-                            width: width * 0.3,
-                            height: width * 0.3,
-                          }}
-                        />
-                      )}
-                    </TouchableOpacity>
-                  </Card.Content>
-                  <Text style={{ textAlign: "center" }}>{item.name}</Text>
-                </Card>
-              </View>
-            );
-          })}
+      {loader ? (
+        <NativeBaseProvider>
+          <Center>
+            <NativeBaseModal isOpen={loader}>
+              <NativeBaseModal.Content maxWidth="400px">
+                <NativeBaseModal.Header>
+                  Fetching Pictures
+                </NativeBaseModal.Header>
+                <NativeBaseModal.Body>
+                  <ActivityIndicator size={"small"} color="gray" />
+                  <Text>Please wait...</Text>
+                </NativeBaseModal.Body>
+              </NativeBaseModal.Content>
+            </NativeBaseModal>
+          </Center>
+        </NativeBaseProvider>
+      ) : (
         <View
           style={{
-            width: width * 0.45,
-            height: width * 0.48,
-            backgroundColor: "white",
-            marginVertical: width * 0.01,
-            paddingVertical: height * 0.01,
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+
+            marginVertical: height * 0.01,
+            marginHorizontal: width * 0.03,
           }}
         >
-          <Card style={{ alignItems: "center" }}>
-            <Card.Content
-              style={{
-                width: width * 0.39,
-                height: width * 0.47,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "rgba(195, 197, 214, 0.3)",
-                marginBottom: height * 0.01,
-              }}
-            >
-              <TouchableOpacity onPress={() => setShowModal(true)}>
-                <Image
-                  source={require("../../assets/kurtaImages/createfolder.png")}
-                  style={{ resizeMode: "cover" }}
-                />
-              </TouchableOpacity>
-            </Card.Content>
-          </Card>
+          {galleryImages &&
+            galleryImages.map((item) => {
+              return (
+                <View
+                  key={item.id}
+                  style={{
+                    width: width * 0.45,
+                    height: width * 0.48,
+                    backgroundColor: "white",
+                    marginVertical: width * 0.02,
+                    paddingVertical: height * 0.01,
+                  }}
+                >
+                  <Card style={{ alignItems: "center" }}>
+                    <Card.Content
+                      style={{
+                        width: width * 0.39,
+                        height: width * 0.41,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(195, 197, 214, 0.3)",
+                        // margin: 4,
+                        elevation: 0,
+                        borderWidth: 0,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("GallerySubTypes", {
+                            item,
+                            name: item.name,
+                          })
+                        }
+                      >
+                        {item.Imgurl ? (
+                          <Image
+                            source={{
+                              uri: item.Imgurl,
+                            }}
+                            style={{
+                              resizeMode: "contain",
+                              width: width * 0.37,
+                              height: width * 0.37,
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../assets/noSubitem.png")}
+                            style={{
+                              resizeMode: "contain",
+                              width: width * 0.3,
+                              height: width * 0.3,
+                            }}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    </Card.Content>
+                    <Text style={{ textAlign: "center" }}>{item.name}</Text>
+                  </Card>
+                </View>
+              );
+            })}
+          <View
+            style={{
+              width: width * 0.45,
+              height: width * 0.48,
+              backgroundColor: "white",
+              marginVertical: width * 0.01,
+              paddingVertical: height * 0.01,
+            }}
+          >
+            <Card style={{ alignItems: "center" }}>
+              <Card.Content
+                style={{
+                  width: width * 0.39,
+                  height: width * 0.47,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "rgba(195, 197, 214, 0.3)",
+                  marginBottom: height * 0.01,
+                }}
+              >
+                <TouchableOpacity onPress={() => setShowModal(true)}>
+                  <Image
+                    source={require("../../assets/kurtaImages/createfolder.png")}
+                    style={{ resizeMode: "cover" }}
+                  />
+                </TouchableOpacity>
+              </Card.Content>
+            </Card>
+          </View>
         </View>
-      </View>
+      )}
     </ScrollView>
   );
 };

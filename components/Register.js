@@ -31,6 +31,7 @@ import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import showFirebaseErrorToast from "./controllers/showFirebaseErrorToast";
 import storeUserData from "./controllers/storeUserData";
+import uploadSliderImages from "./controllers/uploadSliderImages";
 
 const Register = ({ navigation }) => {
   const [checked, setChecked] = useState(false);
@@ -94,6 +95,7 @@ const Register = ({ navigation }) => {
             ToastAndroid.CENTER
           );
           navigation.navigate("Login");
+          uploadSliderImages();
         });
       })
       .catch((error) => {

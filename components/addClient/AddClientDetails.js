@@ -26,13 +26,17 @@ const AddClientDetails = ({ navigation, route }) => {
 
   let { name, contactNo, clothType } = route.params.clientInfo;
   const clientInfo = route.params.clientInfo;
-  const [clientDetails, setClientDetails] = useState();
+  //Client details
+  const [clientDetails, setClientDetails] = useState({
+    clientAddress: "",
+    isUrgent: false,
+  });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showRemindDatePicker, setShowRemindDatePicker] = useState(false);
   const [isSwitchOn, setIsSwitchOn] = useState(false);
   const [clientImageLink, setClientImageLink] = useState();
   const [clientClothImageLink, setClientClothImageLink] = useState();
-  const [clientAddress, setClientAddress] = useState();
+
   const [deliveryText, setDeliveryText] = useState("Set Date");
   const [remindText, setRemindText] = useState("Set Date");
   const [isMeasurementDressGiven, setisMeasurementDressGiven] = useState(false);
@@ -43,12 +47,16 @@ const AddClientDetails = ({ navigation, route }) => {
     remindDate: "",
     markIsUrgent: false,
   });
-  // useEffect(() => {
-  //   setClientDetails({ ...clientInfo });
-  // }, []);
+  useEffect(() => {
+    setClientDetails({ ...clientInfo });
+  }, []);
+  useEffect(() => {
+    console.log(clientDetails);
+  }, [clientDetails]);
 
   useEffect(() => {
     let measurementDetails = getMeasurementDetailsOfSelectedCloth(clothType);
+    // console.log("focus", measurementDetails);
 
     setMeasurementItems(measurementDetails);
     navigation.addListener("focus", async () => {
@@ -62,10 +70,10 @@ const AddClientDetails = ({ navigation, route }) => {
             const myArray = ClientImage.split('"');
 
             setClientImageLink(myArray[1]);
-            setClientDetails({
-              ...clientDetails,
-              ClientImage: myArray[1],
-            });
+            // setClientDetails({
+            //   ...clientDetails,
+            //   ClientImage: myArray[1],
+            // });
           }
         }
         if (ClientClothImage !== null) {
@@ -73,11 +81,13 @@ const AddClientDetails = ({ navigation, route }) => {
           if (index !== -1) {
             const myArray = ClientClothImage.split('"');
 
+            console.log(myArray);
+
             setClientClothImageLink(myArray[1]);
-            setClientDetails({
-              ...clientDetails,
-              ClientClothImage: myArray[1],
-            });
+            // setClientDetails({
+            //   ...clientDetails,
+            //   ClientClothImage: myArray[1],
+            // });
           }
         }
 
@@ -86,6 +96,7 @@ const AddClientDetails = ({ navigation, route }) => {
         // setClientImageLink(value);
         try {
           await AsyncStorage.removeItem("ClientImage");
+          await AsyncStorage.removeItem("ClientClothImage");
         } catch (exception) {
           console.log("error", exception);
         }
@@ -93,38 +104,41 @@ const AddClientDetails = ({ navigation, route }) => {
         // error reading value
       }
     });
-  }, [measurementItems]);
+  }, [measurementItems, measurementItems]);
 
   const onChangeDeliveryDate = (event, selectedDate) => {
-    const currentDate = selectedDate || dates.deliveryDate;
-
-    let tempDate = new Date(currentDate);
-
-    const fDate =
-      tempDate.getDate() +
-      "/" +
-      tempDate.getMonth() +
-      1 +
-      "/" +
-      tempDate.getFullYear();
-
     setShowDatePicker(false);
-    setDeliveryText(fDate);
-    setDates({ ...dates, deliveryDate: fDate });
+    if (event.type == "set") {
+      selectedDate = new Date(selectedDate).toLocaleDateString("en-US", {
+        year: "full",
+        month: "numeric",
+        day: "numeric",
+      });
+
+      setDeliveryText(selectedDate);
+      setDates({ ...dates, deliveryDate: selectedDate });
+      setClientDetails({
+        ...clientDetails,
+        deliveryDate: selectedDate,
+      });
+    }
   };
   const onChangeRemindDate = (event, selectedDate) => {
-    const currentDate = selectedDate || dates.deliveryDate;
-    let tempDate = new Date(currentDate);
-    const fDate =
-      tempDate.getDate() +
-      "/" +
-      tempDate.getMonth() +
-      1 +
-      "/" +
-      tempDate.getFullYear();
     setShowRemindDatePicker(false);
-    setDates({ ...dates, remindDate: fDate });
-    setRemindText(fDate);
+    if (event.type == "set") {
+      selectedDate = new Date(selectedDate).toLocaleDateString("en-US", {
+        year: "full",
+        month: "numeric",
+        day: "numeric",
+      });
+
+      setDates({ ...dates, remindDate: selectedDate });
+      setRemindText(selectedDate);
+      setClientDetails({
+        ...clientDetails,
+        remindDate: selectedDate,
+      });
+    }
   };
   return (
     <ScrollView
@@ -137,9 +151,9 @@ const AddClientDetails = ({ navigation, route }) => {
         <DateTimePicker
           testID="dateTimePicker"
           mode={"date"}
-          is24Hour={"true"}
           display="default"
           value={new Date()}
+          minimumDate={new Date()}
           onChange={onChangeDeliveryDate}
         />
       )}
@@ -147,10 +161,10 @@ const AddClientDetails = ({ navigation, route }) => {
         <DateTimePicker
           testID="dateTimePicker"
           mode={"date"}
-          is24Hour={"true"}
           display="default"
           value={new Date()}
           onChange={onChangeRemindDate}
+          minimumDate={new Date()}
         />
       )}
       <Card>
@@ -379,9 +393,12 @@ const AddClientDetails = ({ navigation, route }) => {
               marginHorizontal: width * 0.05,
             }}
             onChangeText={(address) => {
-              setClientAddress(address);
+              setClientDetails({
+                ...clientDetails,
+                clientAddress: address,
+              });
             }}
-            value={clientAddress}
+            value={clientDetails.clientAddress}
           />
         </View>
         <View
@@ -442,7 +459,9 @@ const AddClientDetails = ({ navigation, route }) => {
             </Text>
           </TouchableOpacity>
 
-          <Image source={require("../../assets/calendar-date-fill.png")} />
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <Image source={require("../../assets/calendar-date-fill.png")} />
+          </TouchableOpacity>
         </View>
 
         <Text
@@ -477,8 +496,9 @@ const AddClientDetails = ({ navigation, route }) => {
               {dates.remindDate == "" ? remindText : dates.remindDate}
             </Text>
           </TouchableOpacity>
-
-          <Image source={require("../../assets/calendar-date-fill.png")} />
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <Image source={require("../../assets/calendar-date-fill.png")} />
+          </TouchableOpacity>
         </View>
 
         <View
@@ -491,12 +511,11 @@ const AddClientDetails = ({ navigation, route }) => {
         >
           <Text style={{ color: "#2B2B2B", fontSize: 15 }}>Mark as Urgent</Text>
           <Switch
-            value={isSwitchOn}
+            value={clientDetails.isUrgent}
             onChange={() => {
-              setIsSwitchOn(!isSwitchOn);
-              setDates({
-                ...dates,
-                markIsUrgent: !isSwitchOn,
+              setClientDetails({
+                ...clientDetails,
+                isUrgent: !clientDetails.isUrgent,
               });
             }}
             color="#8645FF"

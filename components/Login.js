@@ -68,6 +68,7 @@ const Login = ({ navigation, route }) => {
   const loginUser = () => {
     const auth = getAuth();
     setLoader(true);
+
     signInWithEmailAndPassword(auth, userMail, password)
       .then(async (userCredential) => {
         // Signed in

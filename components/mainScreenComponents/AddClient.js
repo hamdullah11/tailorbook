@@ -18,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import selectContactFromPhone from "../../controllers/selectContactFromPhone";
 import uploadNewDressItem from "../controllers/uploadNewDressItem";
-import getSliderImages from "../../controllers/firebase/getSliderImages";
+
 import {
   getStorage,
   ref,
@@ -28,84 +28,7 @@ import {
 } from "firebase/storage";
 
 const { width, height } = Dimensions.get("screen");
-const GallaryItems = [
-  {
-    id: 1,
-    image: require("../../assets/horizontalScroll/shirt.png"),
-    name: "Shirt",
-  },
-  {
-    id: 2,
-    image: require("../../assets/horizontalScroll/salwar.png"),
-    name: "Salwar",
-  },
-  {
-    id: 3,
-    image: require("../../assets/horizontalScroll/blouse.png"),
-    name: "Blouse",
-  },
 
-  {
-    id: 5,
-    image: require("../../assets/horizontalScroll/saree.png"),
-    name: "Saree",
-  },
-  {
-    id: 6,
-    image: require("../../assets/horizontalScroll/UnderSkirt.png"),
-    name: "Under Skirt",
-  },
-  {
-    id: 7,
-    image: require("../../assets/horizontalScroll/nightgown.png"),
-    name: "Night Gown",
-  },
-  {
-    id: 8,
-    image: require("../../assets/horizontalScroll/frock.png"),
-    name: "Frock",
-  },
-  {
-    id: 9,
-    image: require("../../assets/horizontalScroll/Churidar.png"),
-    name: "Churidar",
-  },
-  {
-    id: 10,
-    image: require("../../assets/horizontalScroll/shorts.png"),
-    name: "Shorts",
-  },
-  {
-    id: 11,
-    image: require("../../assets/horizontalScroll/jeans.png"),
-    name: "Jeans",
-  },
-  {
-    id: 12,
-    image: require("../../assets/horizontalScroll/burka.png"),
-    name: "Burka",
-  },
-  {
-    id: 13,
-    image: require("../../assets/horizontalScroll/pant.png"),
-    name: "Pants",
-  },
-  {
-    id: 14,
-    image: require("../../assets/horizontalScroll/coat.png"),
-    name: "Coat",
-  },
-  {
-    id: 15,
-    image: require("../../assets/horizontalScroll/Pajama.png"),
-    name: "Pajama",
-  },
-  {
-    id: 16,
-    image: require("../../assets/horizontalScroll/ShalwarKameez.png"),
-    name: "Shalwar Kameez",
-  },
-];
 import {
   Center,
   Modal,
@@ -114,6 +37,7 @@ import {
   FormControl,
   Input,
 } from "native-base";
+import getSliderImages from "../controllers/getSliderImages";
 
 const GalleryItemsList = (item, setItemId, itemId, setItemName) => {
   let selected = itemId == item.id;
@@ -164,7 +88,7 @@ const GalleryItemsList = (item, setItemId, itemId, setItemName) => {
                 resizeMode: "cover",
               }}
               source={{
-                uri: item.Imgurl,
+                uri: item.link,
               }}
             />
           </View>
@@ -232,22 +156,9 @@ const AddClient = ({ navigation }) => {
   useEffect(() => {
     let galleryImages = [];
     const getImages = async () => {
-      const storage = getStorage();
-      const reference = ref(storage, "clothTypes");
-      let allImageRef = await listAll(reference);
-      if (allImageRef.items.length) {
-        for (let i = 0; i < allImageRef.items.length; i++) {
-          let url = await getDownloadURL(allImageRef.items[i]);
-          let metaData = await getMetadata(allImageRef.items[i]);
-          let name = metaData.name.split(".");
-          galleryImages.push({
-            id: i,
-            Imgurl: url,
-            name: name[0],
-          });
-        }
-        setImages(galleryImages);
-      }
+      let resp = await getSliderImages();
+
+      setImages(resp);
     };
     getImages();
   }, []);
@@ -363,6 +274,7 @@ const AddClient = ({ navigation }) => {
               <FontAwesome name="phone" size={24} color="#8645FF" />
               <TextInput
                 placeholder="Phone Number"
+                keyboardType="phone-pad"
                 style={{
                   backgroundColor: "#FFFFFF",
                   marginHorizontal: width * 0.05,
@@ -486,6 +398,7 @@ const AddClient = ({ navigation }) => {
             if (itemId) {
               navigation.navigate("AddNewClientDetails", {
                 clientInfo: clientInfo,
+                name: clientInfo.name,
               });
             } else {
               ToastAndroid.showWithGravityAndOffset(

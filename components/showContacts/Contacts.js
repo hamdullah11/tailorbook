@@ -28,8 +28,11 @@ const Contacts = ({ navigation }) => {
   useEffect(() => {
     const getContacts = async () => {
       let list = await selectContactFromPhone();
-
-      setContacts(list);
+      if (list) {
+        setContacts(list);
+      } else {
+        navigation.goBack();
+      }
     };
     getContacts();
   }, []);

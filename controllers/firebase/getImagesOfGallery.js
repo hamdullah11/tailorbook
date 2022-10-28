@@ -1,3 +1,4 @@
+import { getAuth } from "firebase/auth";
 import { collection, getDocs } from "firebase/firestore";
 import {
   getStorage,
@@ -9,8 +10,9 @@ import {
 import { db } from "../../firebase";
 
 const getImagesOfGallery = async () => {
+  let uid = getAuth().currentUser.uid;
   const storage = getStorage();
-  const reference = collection(db, "globalImageGallery");
+  const reference = collection(db, "users", uid, "gallery");
 
   let allImages = [];
   return getDocs(reference)

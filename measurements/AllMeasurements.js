@@ -56,4 +56,22 @@ export const AllMeasurements = [
       "Ankle (All Around)",
     ],
   },
+  {
+    type: "ShalwarKameez",
+    Kurta: [
+      "Lenght",
+      "Shoulder",
+      "Chest",
+      "Waist",
+      "Hip",
+      "Gher",
+      "Arm Length",
+      "Arm Length Type",
+      "Around Arm",
+      "Wrist",
+      "Collar Front",
+      "Collar Back",
+    ],
+    Salwar: ["Length", "Waist", "Hip", "Around Leg", "Mori"],
+  },
 ];

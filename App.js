@@ -134,11 +134,11 @@ const NormalStack = () => {
           component={GallerySubTypesSlider}
         ></Stack.Screen>
         <Stack.Screen
-          options={{
+          options={({ route }) => ({
+            headerTitle: route.params.name,
             headerShown: true,
-            headerTitle: "Zakir Ullah",
             headerTitleAlign: "center",
-          }}
+          })}
           name="AddNewClientDetails"
           component={AddNewClientDetails}
         ></Stack.Screen>
@@ -219,6 +219,247 @@ const NormalStack = () => {
           name="UploadDressItem"
           component={UploadDressItem}
         ></Stack.Screen>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTitle: "Choose a contact",
+            headerTitleAlign: "center",
+          }}
+          name="Contacts"
+          component={Contacts}
+        ></Stack.Screen>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTitle: "",
+            headerTitleAlign: "center",
+            headerTintColor: "white",
+            headerStyle: {
+              backgroundColor: "black",
+            },
+            headerRight: () => {
+              return (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="reload"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialIcons
+                      name="flip"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <Text
+                      style={{ color: "white", marginHorizontal: width * 0.03 }}
+                    >
+                      Save
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            },
+          }}
+          name="UploadClientImage"
+          component={UploadClientImage}
+        ></Stack.Screen>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTitle: "",
+            headerTitleAlign: "center",
+            headerTintColor: "white",
+            headerStyle: {
+              backgroundColor: "black",
+            },
+            headerRight: () => {
+              return (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="reload"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialIcons
+                      name="flip"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <Text
+                      style={{ color: "white", marginHorizontal: width * 0.03 }}
+                    >
+                      Save
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            },
+          }}
+          name="UploadClientClothImg"
+          component={UploadClientClothImg}
+        ></Stack.Screen>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTitle: "",
+            headerTitleAlign: "center",
+            headerTintColor: "white",
+            headerStyle: {
+              backgroundColor: "black",
+            },
+            headerRight: () => {
+              return (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="reload"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <MaterialIcons
+                      name="flip"
+                      size={24}
+                      color="white"
+                      style={{
+                        marginHorizontal: width * 0.03,
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      ToastAndroid.showWithGravity(
+                        "Please select Image first",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                      );
+                    }}
+                  >
+                    <Text
+                      style={{ color: "white", marginHorizontal: width * 0.03 }}
+                    >
+                      Save
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            },
+          }}
+          name="SelectPatternImage"
+          component={SelectPatternImage}
+        ></Stack.Screen>
+        <Stack.Screen name="OrderDetails" component={OrderDetails} />
       </>
     </Stack.Navigator>
   );
